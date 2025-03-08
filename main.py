@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 
 from aiogram import Bot, Dispatcher
 from settings import settings
@@ -12,6 +13,9 @@ dp = Dispatcher()
 
 
 async def start():
+    os.makedirs("voice/download", exist_ok=True)
+    os.makedirs("voice/upload", exist_ok=True)
+
     logging.basicConfig(level=logging.INFO)  # Чтобы видеть, как бот обрабатывает сообщения
 
     # Подключаем роутеры
