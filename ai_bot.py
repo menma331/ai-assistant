@@ -70,7 +70,7 @@ class AIBot:
         speech_file_path = f'voice/upload/{short_hash(text)}.mp3'
         response = await self._client.audio.speech.create(
             model="tts-1",
-            voice="sage",
+            voice="nova",
             input=text,
         )
         response.stream_to_file(speech_file_path)
