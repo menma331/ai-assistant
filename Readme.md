@@ -1,8 +1,7 @@
 # AI Assistant
 
 
+Схема работы AI ассистента
 
-
-Схема работы ответа на вопрос
 <img src="doc/ai_assistant_principle_of_work.png">
 
