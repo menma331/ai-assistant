@@ -41,6 +41,7 @@ async def handle_voice_message(message: Message) -> None:
     if not user_voice_text:
         await message.answer(text=error_message_text, parse_mode="HTML")
 
+    print(f"Запрос пользователя:\n{user_voice_text}")
     os.remove(user_voice_message_path)
 
     answer_for_message = await ai_bot.get_answer_for_message(user_id=user_id, question_text=user_voice_text)
