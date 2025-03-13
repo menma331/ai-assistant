@@ -3,7 +3,7 @@ import os
 import aiofiles
 import aiohttp
 
-from settings import settings
+from core.settings import settings
 
 
 async def save_file(file_path: str, content: bytes):
