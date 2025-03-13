@@ -132,4 +132,4 @@ class AIBot:
         return speech_file_path
 
 
-ai_bot = AIBot(settings.settings.open_ai_token)
+ai_bot = AIBot(settings.open_ai_token, settings.open_ai_assistant_id)
