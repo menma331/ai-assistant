@@ -117,6 +117,7 @@ class AIBot:
                 if message.role == "assistant":
                     return message.content[0].text.value
 
+        return "Спасибо ! Ваше сообщение обработано"
 
     async def text_to_voice(self, text) -> str:
         """Конвертация текста в голос."""
