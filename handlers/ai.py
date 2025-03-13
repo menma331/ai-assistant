@@ -2,12 +2,37 @@ import os
 
 from aiogram import Router, F
 from aiogram.enums import ContentType, ChatAction
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, PhotoSize
 
-from ai_bot import ai_bot
+from bots.ai_bot import ai_bot
+from bots.amplitude_bot import amplitude_bot
 from utils.audio import download_voice_message
+from utils.img import encode_image
 
 ai_router = Router()
+
+
+@ai_router.message(F.content_type == ContentType.PHOTO)
+async def handle_photo_message(message: Message) -> None:
+    """
+
+    """
+    amplitude_bot.track_event(user_id=message.from_user.id, event_type='photo_message_received')
+    photo: PhotoSize = message.photo[-1]
+    file_name = f"photos/{photo.file_unique_id}.jpg"
+
+    await message.bot.download(file=photo.file_id, destination=file_name)
+
+    encoded_image: str = encode_image(file_name)
+    os.remove(file_name)
+
+    description_of_emotions_text: str = await ai_bot.detect_mood_from_image(encoded_image)
+
+    await message.bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.RECORD_VOICE)
+    voice_answer_path = await ai_bot.text_to_voice(description_of_emotions_text)
+    await message.answer_voice(voice=FSInputFile(path=voice_answer_path))
+
+    os.remove(voice_answer_path)
 
 
 @ai_router.message(F.content_type == ContentType.VOICE)
