@@ -3,10 +3,8 @@ import base64
 import hashlib
 import io
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, Mock, patch
-from ai_bot import AIBot  # Предполагается, что код класса в файле ai_bot.py
-import settings
+from ai_bot import AIBot
 from openai.types.beta import Assistant
 
 
