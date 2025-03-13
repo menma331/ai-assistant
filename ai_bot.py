@@ -10,10 +10,11 @@ import hashlib, base64
 
 
 class AIBot:
-    def __init__(self, token):
+    def __init__(self, token, assistant_id):
         self.__token = token
         self._client = AsyncOpenAI(api_key=self.__token)
-        self.assistants: dict = {}
+        self.assistant_id = assistant_id
+        self.user_threads: dict = {}
 
     async def voice_to_text(self, voice_file: io.BufferedReader) -> str:
         """Конвертация голосового сообщения в текст."""
