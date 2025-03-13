@@ -90,12 +90,32 @@ class AIBot:
         )
 
         if run.status == "completed":
-            messages = await self._client.beta.threads.messages.list(thread_id=thread.id)
-
-            # Ищем последнее сообщение от ассистента
+            messages = await self._client.beta.threads.messages.list(thread_id=thread_id)
             for message in reversed(messages.data):
                 if message.role == "assistant":
-                    return message.content[0].text.value  # Получаем текст ответа
+                    return message.content[0].text.value
+        elif run.status == "requires_action":
+            tool_outputs = []
+            for tool_call in run.required_action.submit_tool_outputs.tool_calls:
+                if tool_call.function.name == "save_value":
+                    value = json.loads(tool_call.function.arguments)["value"]
+                    print(f"Для пользователя {user_id} определена ценность: {value}")
+                    success = await self.save_value(user_id, value)
+                    tool_outputs.append(
+                        {
+                            "tool_call_id": tool_call.id,
+                            "output": json.dumps({"success": success})
+                        }
+                    )
+            await self._client.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread_id,
+                run_id=run.id,
+                tool_outputs=tool_outputs
+            )
+            messages = await self._client.beta.threads.messages.list(thread_id=thread_id)
+            for message in reversed(messages.data):
+                if message.role == "assistant":
+                    return message.content[0].text.value
 
 
     async def text_to_voice(self, text) -> str:
