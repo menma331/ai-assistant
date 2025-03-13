@@ -132,4 +132,25 @@ class AIBot:
         return speech_file_path
 
 
+    # Функция для определения настроения через OpenAI Vision
+    async def detect_mood_from_image(self, base64_image):
+        """Определение эмоций пользователя."""
+        response = await self._client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Describe the emotion on the person's face in this image."},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                    ]
+                }
+            ],
+            max_tokens=50
+        )
+
+        mood_description = response.choices[0].message.content
+        print(mood_description)
+        return mood_description
+
 ai_bot = AIBot(settings.open_ai_token, settings.open_ai_assistant_id)
