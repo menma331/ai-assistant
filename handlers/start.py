@@ -1,10 +1,5 @@
-import aiohttp
 from aiogram import Router, F
-from aiogram.enums import ContentType
 from aiogram.types import Message
-
-from settings import settings
-from utils.audio import save_file
 
 start_router = Router()
 
