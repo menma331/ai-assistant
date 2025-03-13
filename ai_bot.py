@@ -1,12 +1,10 @@
 import io
 from typing import Optional
-
 from openai import AsyncOpenAI
-from openai.types.beta import Assistant
 
-import settings
-from utils.prompt import default_prompt_for_ai
-import hashlib, base64
+from dao import user_dao
+from core.settings import settings
+import hashlib, base64, json
 
 
 class AIBot:
