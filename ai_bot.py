@@ -66,7 +66,18 @@ class AIBot:
         result = json.loads(response.choices[0].message.function_call.arguments)
         return result["result"]
 
-        # Отправляем сообщение в поток
+    async def save_value(self, user_id: int, value: str) -> bool:
+        """Сохранение ценности в БД после валидации."""
+        if not value.strip():
+            return False
+        is_valid = await self.validate_value(value)
+        if is_valid:
+            await user_dao.save_user_value(user_tg_id=user_id, value=value)
+            return True
+        return False
+
+    async def get_answer_for_message(self, user_id: int, question_text: str) -> Optional[str]:
+        thread_id = await self.get_user_thread(user_id=user_id)
         await self._client.beta.threads.messages.create(
             thread_id=thread.id,
             content=question_text,
