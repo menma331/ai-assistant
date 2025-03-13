@@ -22,23 +22,49 @@ class AIBot:
         )
         return transcription.text
 
-    async def get_user_assistant(self, user_id) -> Assistant:
-        """Получаем или создаем нового AI ассистента."""
-        if user_id not in self.assistants:
-            self.assistants[user_id] = await self._client.beta.assistants.create(
-                name=f"AI Assistant for {user_id}",
-                instructions=default_prompt_for_ai,
-                model="gpt-4o",
-            )
-        return self.assistants[user_id]
+    async def get_user_thread(self, user_id: int) -> str:
+        """Получение пользовательского треда, либо создание."""
+        if user_id not in self.user_threads:
+            thread = await self._client.beta.threads.create()
+            self.user_threads[user_id] = thread.id
+        return self.user_threads[user_id]
 
-    async def get_answer_for_message(self, user_id: str, question_text: str) -> Optional[str]:
-        """Асинхронное получение ответа от OpenAI.
-         Если бот успешно даст ответ на вопрос, мы отправляем его, иначе вернется None."""
-        assistant = await self.get_user_assistant(user_id)
-
-        # Создаём новый поток
-        thread = await self._client.beta.threads.create()
+    async def validate_value(self, value: str) -> bool:
+        """Валидация ценности через Completions API с structured_output."""
+        response = await self._client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": ("Ты валидатор ценностей. Проверь, является ли следующее утверждение осмысленной ценностью. "
+                                "Ценность должна быть понятным словом или фразой, отражающей важный принцип или убеждение (например, 'семья', 'честность', "
+                                "'свобода'). "
+                                "Она не должна быть пустой, бессмысленным набором букв (например, 'sfgsdg', '123abc'), случайным звуком или несуществующим "
+                                "словом. "
+                                "Верни только JSON с boolean."
+                                )
+                },
+                {
+                    "role": "user",
+                    "content": f"Проверь: '{value}'"
+                }
+            ],
+            max_tokens=10,
+            functions=[
+                {
+                    "name": "validate",
+                    "description": "Returns a boolean indicating if the value is valid",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"result": {"type": "boolean"}},
+                        "required": ["result"]
+                    }
+                }
+            ],
+            function_call={"name": "validate"}
+        )
+        result = json.loads(response.choices[0].message.function_call.arguments)
+        return result["result"]
 
         # Отправляем сообщение в поток
         await self._client.beta.threads.messages.create(
