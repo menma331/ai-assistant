@@ -3,7 +3,7 @@ import logging
 import os
 
 from aiogram import Bot, Dispatcher
-from settings import settings
+from core.settings import settings
 from handlers.start import start_router
 from handlers.ai import ai_router
 
