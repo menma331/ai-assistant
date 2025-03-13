@@ -15,6 +15,7 @@ dp = Dispatcher()
 async def start():
     os.makedirs("voice/download", exist_ok=True)
     os.makedirs("voice/upload", exist_ok=True)
+    os.makedirs('photos')
 
     logging.basicConfig(level=logging.INFO)  # Чтобы видеть, как бот обрабатывает сообщения
 
