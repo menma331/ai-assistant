@@ -28,9 +28,12 @@ AI Assistant — это голосовой Telegram-бот, построенны
   - `sqlalchemy[asyncio]` — для асинхронной работы с базой данных.
   - `asyncpg` — драйвер для PostgreSQL.
   - `alembic` — для миграций базы данных.
+  - `amplitude-analitycs` - для отслеживания действий пользователя.
+
 - **Токены и настройки**:
   - Telegram Bot API Token (получается через BotFather).
   - OpenAI API Key (получается в аккаунте OpenAI).
+  - AMPLITUDE API KEY (получается в аккаунте AMPLITUDE)
   - OpenAI Assistant ID (создаётся в OpenAI Playground или программно).
 - **База данных**: PostgreSQL (локально или в облаке, например, на Railway).
 - **Файл `.env`** с переменными:
@@ -61,6 +64,7 @@ AI Assistant — это голосовой Telegram-бот, построенны
       TELEGRAM_TOKEN=your_telegram_bot_token
       OPEN_AI_TOKEN=your_openai_api_key
       OPEN_AI_ASSISTANT_ID=your_assistant_id
+      AMPLITUDE_API_KEY=AMPLITUDE_API_KEY
       DB_CONNECTION_STRING=postgresql+asyncpg://user:password@host:port/dbname
       ```
 
@@ -167,6 +171,7 @@ ai-assistant/
       TELEGRAM_TOKEN=your_telegram_bot_token
       OPEN_AI_TOKEN=your_openai_api_key
       OPEN_AI_ASSISTANT_ID=your_assistant_id
+      AMPLITUDE_API_KEY=AMPLITUDE_API_KEY
       DB_CONNECTION_STRING=postgresql+asyncpg://user:password@host:port/dbname
       ```
 5. **Запустите деплой**:
