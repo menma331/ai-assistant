@@ -79,16 +79,14 @@ class AIBot:
     async def get_answer_for_message(self, user_id: int, question_text: str) -> Optional[str]:
         thread_id = await self.get_user_thread(user_id=user_id)
         await self._client.beta.threads.messages.create(
-            thread_id=thread.id,
+            thread_id=thread_id,
             content=question_text,
             role="user"
         )
 
-        # Запускаем ассистента
         run = await self._client.beta.threads.runs.create_and_poll(
-            thread_id=thread.id,
-            assistant_id=assistant.id,
-            instructions=default_prompt_for_ai
+            thread_id=thread_id,
+            assistant_id=self.assistant_id
         )
 
         if run.status == "completed":
