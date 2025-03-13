@@ -46,6 +46,7 @@ async def handle_voice_message(message: Message) -> None:
     4) Конвертируем текстовый ответ в ГС
     5) Отправляем голосовой ответ пользователю
     """
+    amplitude_bot.track_event(user_id=message.from_user.id, event_type='voice_message_received')
     error_message_text = ("Произошла непредвиденная ошибка не сервере."
                                   " Свяжитесь с <a href='https://t.me/azirafiele'>разработчиком</a>.")
     file_id = message.voice.file_id
