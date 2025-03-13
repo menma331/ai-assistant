@@ -46,9 +46,6 @@ async def handle_voice_message(message: Message) -> None:
 
     answer_for_message = await ai_bot.get_answer_for_message(user_id=user_id, question_text=user_voice_text)
 
-    if not answer_for_message:
-        await message.answer(text='Не могу дать ответ на ваш вопрос.')
-
     voice_answer_path = await ai_bot.text_to_voice(answer_for_message)
 
     await message.answer_voice(voice=FSInputFile(path=voice_answer_path))
