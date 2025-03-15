@@ -74,7 +74,13 @@ async def handle_voice_message(message: Message, state: FSMContext) -> None:
     print(f"Запрос пользователя:\n{user_voice_text}")
     os.remove(user_voice_message_path)
 
-    answer_for_message = await ai_bot.get_answer_for_message(user_id=user_id, question_text=user_voice_text)
+    # Передаём state в get_answer_for_message для работы с FSM
+    answer_for_message = await ai_bot.get_answer_for_message(user_id=user_id, question_text=user_voice_text, state=state)
+    source_of_answer = extract_source(answer_for_message)
+
+    if source_of_answer:
+        answer_for_message = answer_for_message.replace(source_of_answer, '') # Чтобы в гс не дублировалась информация из сообщения
+        await message.answer(text=f'Информация взята из подготовленного документа. {source_of_answer}')
 
     voice_answer_path = await ai_bot.text_to_voice(answer_for_message)
 
