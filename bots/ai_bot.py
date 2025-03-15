@@ -13,7 +13,7 @@ class UserState(StatesGroup):
     thread = State()
 
 class AIBot:
-    def __init__(self, token, assistant_id):
+    def __init__(self, token: str, assistant_id: str):
         self.__token = token
         self._client = AsyncOpenAI(api_key=self.__token)
         self.assistant_id = assistant_id
