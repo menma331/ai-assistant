@@ -12,7 +12,6 @@ from core.db import BaseModel
 # access to the values within the .ini file in use.
 config = context.config
 
-# TODO: закончил на том, что сделал миграции в базу данных. Добавил модель. Теперь нужно сделать общение с пользователем и выявление его ценностей
 config.set_main_option("sqlalchemy.url", value=settings.database_connection_string.replace("postgresql+asyncpg", "postgresql"))
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

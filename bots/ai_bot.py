@@ -7,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dao import user_dao
 from core.settings import settings
+from utils.prompt import default_prompt_for_ai
+
 
 class UserState(StatesGroup):
     """Хранение thread_id"""
@@ -83,8 +85,8 @@ class AIBot:
             return True
         return False
 
-    async def get_answer_for_message(self, user_id: int, question_text: str) -> Optional[str]:
-        thread_id = await self.get_user_thread(user_id=user_id)
+    async def get_answer_for_message(self, user_id: int, question_text: str, state: FSMContext) -> str:
+        thread_id = await self.get_user_thread(user_id=user_id, state=state)
         await self._client.beta.threads.messages.create(
             thread_id=thread_id,
             content=question_text,
@@ -93,14 +95,35 @@ class AIBot:
 
         run = await self._client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
-            assistant_id=self.assistant_id
+            assistant_id=self.assistant_id,
+            instructions=default_prompt_for_ai + 'Если вопрос о тревожности, ответь информацией из документа.'
         )
 
         if run.status == "completed":
             messages = await self._client.beta.threads.messages.list(thread_id=thread_id)
-            for message in reversed(messages.data):
-                if message.role == "assistant":
-                    return message.content[0].text.value
+            answer = messages.data[0].content[0].text.value
+
+            file_sources = set()
+            # try:
+            #     source = messages.data[0].content[0]
+            answer_annotations = messages.data[0].content[0].text.annotations
+            for annotation in answer_annotations: # Получаем все использованные источники в последнем ответе
+                if annotation.type == "file_citation":
+                    file_sources.add(annotation.file_citation.file_id)
+
+            if file_sources:
+                file_names = []
+                for file_id in file_sources:
+                    try:
+                        file_info = await self._client.files.retrieve(file_id)
+                        file_names.append(file_info.filename)
+                    except Exception as e:
+                        print(f"Ошибка получения имени файла: {e}")
+
+                if file_names:
+                    answer += f"\nИсточник: {', '.join(file_names)}"
+            return answer
+
         elif run.status == "requires_action":
             tool_outputs = []
             for tool_call in run.required_action.submit_tool_outputs.tool_calls:
@@ -119,14 +142,21 @@ class AIBot:
                 run_id=run.id,
                 tool_outputs=tool_outputs
             )
+
             messages = await self._client.beta.threads.messages.list(thread_id=thread_id)
-            for message in reversed(messages.data):
-                if message.role == "assistant":
-                    return message.content[0].text.value
+            answer = messages.data[0].content[0].text.value
+            if hasattr(run, "file_ids") and run.file_ids:
+                try:
+                    file_info = await self._client.files.retrieve(run.file_ids[0])
+                    file_name = file_info.filename
+                    answer += f"\n(Источник: {file_name})"
+                except Exception as e:
+                    print(f"Ошибка получения имени файла: {e}")
+            return answer
 
-        return "Спасибо ! Ваше сообщение обработано"
+        return "Необходимые действия были выполнены. У вас есть какой-то вопрос?"
 
-    async def text_to_voice(self, text) -> str:
+    async def text_to_voice(self, text: str) -> str:
         """Конвертация текста в голос."""
         short_hash = lambda txt: base64.b32encode(hashlib.md5(txt.encode()).digest())[:6].decode()
         speech_file_path = f'voice/upload/{short_hash(text)}.mp3'
@@ -138,9 +168,7 @@ class AIBot:
         response.stream_to_file(speech_file_path)
         return speech_file_path
 
-
-    # Функция для определения настроения через OpenAI Vision
-    async def detect_mood_from_image(self, base64_image):
+    async def detect_mood_from_image(self, base64_image: str) -> str:
         """Определение эмоций пользователя."""
         response = await self._client.chat.completions.create(
             model="gpt-4o",
@@ -155,7 +183,6 @@ class AIBot:
             ],
             max_tokens=50
         )
-
         mood_description = response.choices[0].message.content
         print(mood_description)
         return mood_description
