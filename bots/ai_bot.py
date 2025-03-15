@@ -104,8 +104,6 @@ class AIBot:
             answer = messages.data[0].content[0].text.value
 
             file_sources = set()
-            # try:
-            #     source = messages.data[0].content[0]
             answer_annotations = messages.data[0].content[0].text.annotations
             for annotation in answer_annotations: # Получаем все использованные источники в последнем ответе
                 if annotation.type == "file_citation":
