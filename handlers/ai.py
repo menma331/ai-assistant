@@ -68,6 +68,8 @@ async def handle_voice_message(message: Message, state: FSMContext) -> None:
 
     if not user_voice_text:
         await message.answer(text=error_message_text, parse_mode="HTML")
+        os.remove(user_voice_message_path)
+        return
 
     print(f"Запрос пользователя:\n{user_voice_text}")
     os.remove(user_voice_message_path)
