@@ -37,9 +37,8 @@ async def handle_photo_message(message: Message) -> None:
 
     os.remove(voice_answer_path)
 
-
 @ai_router.message(F.content_type == ContentType.VOICE)
-async def handle_voice_message(message: Message) -> None:
+async def handle_voice_message(message: Message, state: FSMContext) -> None:
     """Обработка голосового сообщения от пользователя.
 
     Последовательность действий:\n
