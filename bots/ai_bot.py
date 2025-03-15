@@ -32,8 +32,9 @@ class AIBot:
         thread_id = data.get("thread_id")
         if not thread_id:
             thread = await self._client.beta.threads.create()
-            self.user_threads[user_id] = thread.id
-        return self.user_threads[user_id]
+            thread_id = thread.id
+            await state.update_data(thread_id=thread_id)
+        return thread_id
 
     async def validate_value(self, value: str) -> bool:
         """Валидация ценности через Completions API с structured_output."""
