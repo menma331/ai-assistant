@@ -17,7 +17,6 @@ class AIBot:
         self.__token = token
         self._client = AsyncOpenAI(api_key=self.__token)
         self.assistant_id = assistant_id
-        self.user_threads: dict = {}
 
     async def voice_to_text(self, voice_file: io.BufferedReader) -> str:
         """Конвертация голосового сообщения в текст."""
