@@ -49,8 +49,8 @@ async def handle_voice_message(message: Message, state: FSMContext) -> None:
     5) Отправляем голосовой ответ пользователю
     """
     amplitude_bot.track_event(user_id=message.from_user.id, event_type='voice_message_received')
-    error_message_text = ("Произошла непредвиденная ошибка не сервере."
-                                  " Свяжитесь с <a href='https://t.me/azirafiele'>разработчиком</a>.")
+    error_message_text = ("Произошла непредвиденная ошибка на сервере."
+                         " Свяжитесь с <a href='https://t.me/azirafiele'>разработчиком</a>.")
     file_id = message.voice.file_id
     bot = message.bot
     file = await bot.get_file(file_id)
