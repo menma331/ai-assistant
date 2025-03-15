@@ -1,11 +1,11 @@
 import os
-
 from aiogram import Router, F
 from aiogram.enums import ContentType, ChatAction
 from aiogram.types import Message, FSInputFile, PhotoSize
-
+from aiogram.fsm.context import FSMContext
 from bots.ai_bot import ai_bot
 from bots.amplitude_bot import amplitude_bot
+from utils import extract_source
 from utils.audio import download_voice_message
 from utils.img import encode_image
 
