@@ -11,6 +11,7 @@ from utils.img import encode_image
 
 ai_router = Router()
 
+
 @ai_router.message(F.content_type == ContentType.PHOTO)
 async def handle_photo_message(message: Message) -> None:
     """Обработка фотографии в сообщении пользователя
@@ -37,6 +38,7 @@ async def handle_photo_message(message: Message) -> None:
 
     os.remove(voice_answer_path)
 
+
 @ai_router.message(F.content_type == ContentType.VOICE)
 async def handle_voice_message(message: Message, state: FSMContext) -> None:
     """Обработка голосового сообщения от пользователя.
@@ -50,19 +52,19 @@ async def handle_voice_message(message: Message, state: FSMContext) -> None:
     """
     amplitude_bot.track_event(user_id=message.from_user.id, event_type='voice_message_received')
     error_message_text = ("Произошла непредвиденная ошибка на сервере."
-                         " Свяжитесь с <a href='https://t.me/azirafiele'>разработчиком</a>.")
+                          " Свяжитесь с <a href='https://t.me/azirafiele'>разработчиком</a>.")
     file_id = message.voice.file_id
     bot = message.bot
     file = await bot.get_file(file_id)
     file_path = file.file_path
 
     user_id = message.from_user.id
-    await bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.RECORD_VOICE)
     user_voice_message_path = await download_voice_message(file_id=file_id, file_path=file_path, user_id=user_id)
     if not user_voice_message_path:
         await message.answer(text=error_message_text, parse_mode="HTML")
         return
 
+    await bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.RECORD_VOICE)
     with open(user_voice_message_path, 'rb') as audio_file:
         user_voice_text = await ai_bot.voice_to_text(audio_file)
 
@@ -79,13 +81,10 @@ async def handle_voice_message(message: Message, state: FSMContext) -> None:
     source_of_answer = extract_source(answer_for_message)
 
     if source_of_answer:
-        answer_for_message = answer_for_message.replace(source_of_answer, '') # Чтобы в гс не дублировалась информация из сообщения
+        answer_for_message = answer_for_message.replace(source_of_answer, '')  # Чтобы в гс не дублировалась информация из сообщения
         await message.answer(text=f'Информация взята из подготовленного документа. {source_of_answer}')
 
     voice_answer_path = await ai_bot.text_to_voice(answer_for_message)
-
     await message.answer_voice(voice=FSInputFile(path=voice_answer_path))
 
     os.remove(voice_answer_path)
-
-
