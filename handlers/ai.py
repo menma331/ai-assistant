@@ -11,11 +11,14 @@ from utils.img import encode_image
 
 ai_router = Router()
 
-
 @ai_router.message(F.content_type == ContentType.PHOTO)
 async def handle_photo_message(message: Message) -> None:
-    """
+    """Обработка фотографии в сообщении пользователя
 
+    Последовательность:\n
+    1) Получаем и скачиваем фотографию из телеграма.
+    2) Кодируем и отправляем нейронке проверить эмоцию лица на фотке.
+    3) Записываем голосовое с помощью нейронки и отправляем его пользователю.
     """
     amplitude_bot.track_event(user_id=message.from_user.id, event_type='photo_message_received')
     photo: PhotoSize = message.photo[-1]
