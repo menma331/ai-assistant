@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis-data:/data
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPEN_AI_TOKEN=${OPEN_AI_TOKEN}
+      - OPEN_AI_ASSISTANT_ID=${OPEN_AI_ASSISTANT_ID}
+      - AMPLITUDE_API_KEY=${AMPLITUDE_API_KEY}
+      - VECTOR_STORE_ID=${VECTOR_STORE_ID}
+      - DB_CONNECTION_STRING=${DB_CONNECTION_STRING}
+
+    volumes:
+      - .:/app
+
+volumes:
+  redis-data:
