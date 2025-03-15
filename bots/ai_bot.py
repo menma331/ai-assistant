@@ -1,11 +1,16 @@
 import io
-from typing import Optional
+import json
+import base64
+import hashlib
 from openai import AsyncOpenAI
-
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from dao import user_dao
 from core.settings import settings
-import hashlib, base64, json
 
+class UserState(StatesGroup):
+    """Хранение thread_id"""
+    thread = State()
 
 class AIBot:
     def __init__(self, token, assistant_id):
@@ -22,9 +27,11 @@ class AIBot:
         )
         return transcription.text
 
-    async def get_user_thread(self, user_id: int) -> str:
-        """Получение пользовательского треда, либо создание."""
-        if user_id not in self.user_threads:
+    async def get_user_thread(self, user_id: int, state: FSMContext) -> str:
+        """Получение или создание thread_id, хранимого в состоянии FSM."""
+        data = await state.get_data()
+        thread_id = data.get("thread_id")
+        if not thread_id:
             thread = await self._client.beta.threads.create()
             self.user_threads[user_id] = thread.id
         return self.user_threads[user_id]
